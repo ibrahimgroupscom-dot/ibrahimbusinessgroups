@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBRAHIM BUSINESS GROUPS - Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Poppins', sans-serif; background: #f0f2f5; }
+
+/* LOGIN */
+.login-container {
+  display: flex; justify-content: center; align-items: center;
+  height: 100vh; background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+.login-box {
+  background: white; padding: 40px 36px; width: 340px;
+  border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center;
+}
+.login-box h2 { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+.login-box p { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+.login-box input {
+  width: 100%; padding: 11px 14px; margin-bottom: 12px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  font-family: inherit; font-size: 14px; outline: none; transition: border-color .2s;
+}
+.login-box input:focus { border-color: #2563eb; }
+.login-box button {
+  width: 100%; padding: 12px; background: #2563eb; color: white;
+  border: none; border-radius: 8px; font-family: inherit;
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: background .2s;
+}
+.login-box button:hover { background: #1d4ed8; }
+.login-err { color:#dc2626; font-size:13px; margin-top:10px; display:none; font-weight:600; }
+
+/* ADMIN PANEL */
+.admin-panel { display: none; }
+
+/* Sidebar */
+.sidebar {
+  width: 230px; background: #1e293b; color: white;
+  height: 100vh; position: fixed; top: 0; left: 0;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-header {
+  background: #0f172a; padding: 22px 16px; text-align: center;
+  border-bottom: 1px solid #334155;
+}
+.sidebar-header h2 { font-size: 14px; font-weight: 700; letter-spacing: .5px; color: #f8fafc; line-height: 1.4; }
+.sidebar-header span { font-size: 11px; color: #94a3b8; }
+.sidebar nav { flex: 1; padding: 16px 0; overflow-y:auto; }
+.sidebar nav button {
+  width: 100%; padding: 13px 22px; background: none; border: none;
+  color: #cbd5e1; text-align: left; cursor: pointer; font-family: inherit;
+  font-size: 14px; font-weight: 500; display: flex; align-items: center;
+  gap: 12px; transition: background .15s, color .15s;
+}
+.sidebar nav button:hover, .sidebar nav button.active { background: #334155; color: white; }
+.sidebar nav button .icon { font-size: 18px; }
+.sidebar .logout-btn {
+  margin: 16px; padding: 11px; background: #dc2626; color: white;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+}
+.sidebar .logout-btn:hover { background: #b91c1c; }
+
+/* Main */
+.main { margin-left: 230px; padding: 28px; min-height: 100vh; }
+.page-title { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 22px; }
+
+/* STAT CARDS */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; }
+.stat-card {
+  border-radius: 14px; display: flex; align-items: stretch;
+  overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  transition: transform .2s, box-shadow .2s;
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.18); }
+.stat-icon-col {
+  width: 70px; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; flex-shrink: 0; background: rgba(255,255,255,0.18);
+}
+.stat-info { flex: 1; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
+.stat-info .label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.88); letter-spacing: .3px; text-transform: uppercase; margin-bottom: 4px; }
+.stat-info .value { font-size: 30px; font-weight: 700; color: white; line-height: 1; }
+
+.c-orange  { background: linear-gradient(135deg, #f97316, #ea580c); }
+.c-blue    { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.c-green   { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.c-red     { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.c-teal    { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+.c-purple  { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.c-indigo  { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+.c-pink    { background: linear-gradient(135deg, #ec4899, #db2777); }
+.c-sky     { background: linear-gradient(135deg, #38bdf8, #0284c7); }
+
+/* SECTION CARDS */
+.card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.07); margin-bottom: 20px; }
+.card h3 { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
+.card input, .card select {
+  width: 100%; padding: 10px 13px; margin-bottom: 10px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  font-family: inherit; font-size: 14px; outline: none;
+}
+.card input:focus, .card select:focus { border-color: #2563eb; }
+.card button.action {
+  padding: 10px 20px; background: #2563eb; color: white;
+  border: none; border-radius: 8px; font-family: inherit;
+  font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 6px;
+}
+.card button.action:hover { background: #1d4ed8; }
+.card button.delete { padding: 6px 14px; background: #ef4444; color: white; border: none; border-radius: 6px; font-family: inherit; font-size: 13px; cursor: pointer; }
+
+/* Staff */
+.staff-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 14px; margin-top: 16px; }
+.staff-item { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; transition: box-shadow .2s; }
+.staff-item:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+.staff-item img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid #e2e8f0; }
+.staff-item p { font-size: 13px; color: #475569; margin-bottom: 3px; }
+.staff-item p b { color: #1e293b; }
+
+/* Records */
+.record-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
+  background: #f8fafc; font-size: 13px; color: #475569; gap: 8px; flex-wrap: wrap;
+}
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge.present { background: #dcfce7; color: #16a34a; }
+.badge.absent  { background: #fee2e2; color: #dc2626; }
+.badge.success { background: #dcfce7; color: #16a34a; }
+.badge.failed  { background: #fee2e2; color: #dc2626; }
+
+/* Report table */
+.report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.report-table th { background: #1e293b; color: white; padding: 11px 14px; text-align: left; font-weight: 600; font-size: 12px; letter-spacing: .4px; }
+.report-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #475569; }
+.report-table tr:hover td { background: #f8fafc; }
+.report-table tfoot td { background: #f1f5f9; font-weight: 700; color: #1e293b; }
+.no-data { text-align: center; padding: 30px; color: #94a3b8; font-size: 14px; }
+
+/* Filter bar */
+.filter-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.filter-bar > div { flex: 1; min-width: 140px; }
+.filter-bar label { font-size: 11px; color: #64748b; font-weight: 700; display: block; margin-bottom: 4px; letter-spacing: .4px; text-transform: uppercase; }
+.filter-bar select, .filter-bar input { margin: 0 !important; }
+
+/* Device tag */
+.device-tag { font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+
+.hidden { display: none !important; }
+
+@media print {
+  .sidebar, button, .filter-bar, .stats-grid, .page-title { display: none !important; }
+  .main { margin-left: 0 !important; padding: 0 !important; }
+  .card:not(#reportCard) { display: none !important; }
+  #reportCard { box-shadow: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-container" id="loginPage">
+  <div class="login-box">
+    <h2>🏢 Ibrahim Business Groups</h2>
+    <p>Admin Portal — Sign in to continue</p>
+    <input type="text" id="username" placeholder="Username" onkeydown="if(event.key==='Enter')login()">
+    <input type="password" id="password" placeholder="Password" onkeydown="if(event.key==='Enter')login()">
+    <button onclick="login()">Sign In</button>
+    <p class="login-err" id="loginErr">❌ Invalid username or password</p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="adminPanel">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>IBRAHIM BUSINESS GROUPS</h2>
+      <span>Admin Panel</span>
+    </div>
+    <nav>
+      <button onclick="showSection('dashboard')" id="btn-dashboard" class="active"><span class="icon">📊</span> Dashboard</button>
+      <button onclick="showSection('staff')"     id="btn-staff"><span class="icon">👥</span> Staff</button>
+      <button onclick="showSection('attendance')"id="btn-attendance"><span class="icon">📋</span> Attendance</button>
+      <button onclick="showSection('salary')"    id="btn-salary"><span class="icon">💰</span> Salary</button>
+      <button onclick="showSection('reports')"   id="btn-reports"><span class="icon">📈</span> Reports</button>
+    </nav>
+    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard">
+      <div class="page-title">Dashboard Overview</div>
+      <div class="stats-grid">
+        <div class="stat-card c-orange"><div class="stat-icon-col">👥</div><div class="stat-info"><div class="label">Total Staff</div><div class="value" id="totalStaff">0</div></div></div>
+        <div class="stat-card c-blue"><div class="stat-icon-col">✅</div><div class="stat-info"><div class="label">Present Today</div><div class="value" id="totalPresent">0</div></div></div>
+        <div class="stat-card c-red"><div class="stat-icon-col">❌</div><div class="stat-info"><div class="label">Absent Today</div><div class="value" id="totalAbsent">0</div></div></div>
+        <div class="stat-card c-teal"><div class="stat-icon-col">📋</div><div class="stat-info"><div class="label">Attendance Records</div><div class="value" id="totalAtt">0</div></div></div>
+        <div class="stat-card c-purple"><div class="stat-icon-col">💰</div><div class="stat-info"><div class="label">Total Salary Paid</div><div class="value" id="totalSalaryPaid">₹0</div></div></div>
+        <div class="stat-card c-green"><div class="stat-icon-col">📅</div><div class="stat-info"><div class="label">Salary Records</div><div class="value" id="totalSalaryRecords">0</div></div></div>
+        <div class="stat-card c-indigo"><div class="stat-icon-col">🔐</div><div class="stat-info"><div class="label">Total Login Attempts</div><div class="value" id="totalLogins">0</div></div></div>
+        <div class="stat-card c-pink"><div class="stat-icon-col">✔️</div><div class="stat-info"><div class="label">Successful Logins</div><div class="value" id="successLogins">0</div></div></div>
+        <div class="stat-card c-sky"><div class="stat-icon-col">🚫</div><div class="stat-info"><div class="label">Failed Attempts</div><div class="value" id="failedLogins">0</div></div></div>
+      </div>
+    </div>
+
+    <!-- STAFF -->
+    <div id="staff" class="hidden">
+      <div class="page-title">Staff Management</div>
+      <div class="card">
+        <h3>Add New Staff</h3>
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="text" id="dept" placeholder="Department">
+        <input type="file" id="photo" accept="image/*">
+        <button class="action" onclick="addStaff()">➕ Add Staff</button>
+      </div>
+      <div class="card">
+        <h3>Staff List</h3>
+        <div class="staff-grid" id="staffList"></div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div id="attendance" class="hidden">
+      <div class="page-title">Attendance</div>
+      <div class="card">
+        <h3>Mark Attendance</h3>
+        <select id="attStaff"></select>
+        <select id="attStatus"><option>Present</option><option>Absent</option></select>
+        <button class="action" onclick="markAttendance()">✔ Mark Attendance</button>
+      </div>
+      <div class="card">
+        <h3>Attendance Records</h3>
+        <div id="attendanceList"></div>
+      </div>
+    </div>
+
+    <!-- SALARY -->
+    <div id="salary" class="hidden">
+      <div class="page-title">Salary Management</div>
+      <div class="card">
+        <h3>Add Salary</h3>
+        <select id="salaryStaff"></select>
+        <input type="number" id="salaryAmount" placeholder="Salary Amount (₹)">
+        <button class="action" onclick="addSalary()">💳 Add Salary</button>
+      </div>
+      <div class="card">
+        <h3>Salary Records</h3>
+        <div id="salaryList"></div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="reports" class="hidden">
+      <div class="page-title">Reports</div>
+
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+        <div class="stat-card c-indigo"><div class="stat-icon-col">👥</div><div class="stat-info"><div class="label">Total Staff</div><div class="value" id="r-staff">0</div></div></div>
+        <div class="stat-card c-teal"><div class="stat-icon-col">✅</div><div class="stat-info"><div class="label">All-Time Present</div><div class="value" id="r-present">0</div></div></div>
+        <div class="stat-card c-red"><div class="stat-icon-col">❌</div><div class="stat-info"><div class="label">All-Time Absent</div><div class="value" id="r-absent">0</div></div></div>
+        <div class="stat-card c-purple"><div class="stat-icon-col">💰</div><div class="stat-info"><div class="label">Total Salary Paid</div><div class="value" id="r-salary">₹0</div></div></div>
+        <div class="stat-card c-pink"><div class="stat-icon-col">🔐</div><div class="stat-info"><div class="label">Login Attempts</div><div class="value" id="r-logins">0</div></div></div>
+        <div class="stat-card c-sky"><div class="stat-icon-col">🚫</div><div class="stat-info"><div class="label">Failed Logins</div><div class="value" id="r-failed">0</div></div></div>
+      </div>
+
+      <div class="card">
+        <h3>🔍 Filter & View</h3>
+        <div class="filter-bar">
+          <div>
+            <label>Report Type</label>
+            <select id="rType" onchange="renderReport()">
+              <option value="login">🔐 Login Activity</option>
+              <option value="attendance">📋 Attendance</option>
+              <option value="salary">💰 Salary</option>
+              <option value="staff">👥 Staff Summary</option>
+            </select>
+          </div>
+          <div id="staffFilterWrap">
+            <label>Staff Member</label>
+            <select id="rStaff" onchange="renderReport()"><option value="all">All Staff</option></select>
+          </div>
+          <div>
+            <label>From Date</label>
+            <input type="date" id="rFrom" onchange="renderReport()">
+          </div>
+          <div>
+            <label>To Date</label>
+            <input type="date" id="rTo" onchange="renderReport()">
+          </div>
+          <div style="flex:0;display:flex;gap:8px;flex-wrap:wrap;">
+            <div>
+              <label>&nbsp;</label>
+              <button class="action" onclick="clearFilters()" style="background:#64748b;display:block;">✖ Clear</button>
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button class="action" onclick="window.print()" style="display:block;">🖨 Print</button>
+            </div>
+            <div id="clearLoginWrap">
+              <label>&nbsp;</label>
+              <button class="action" onclick="clearLoginLog()" style="background:#dc2626;display:block;">🗑 Clear Log</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="reportCard">
+        <h3 id="reportTitle">🔐 Login Activity Report</h3>
+        <div id="reportTableWrap" style="overflow-x:auto;"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ===== LOGIN ===== */
+function login(){
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value;
+  const now  = new Date();
+  const ua   = navigator.userAgent;
+  const device  = /Mobile|Android|iPhone/i.test(ua) ? "📱 Mobile" : "🖥️ Desktop";
+  const browser = ua.includes("Edg") ? "Edge" : ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : ua.includes("Safari") ? "Safari" : "Unknown";
+
+  const log = JSON.parse(localStorage.getItem("loginLog"))||[];
+
+  if(user === "admin" && pass === "1234"){
+    log.push({ user, status:"Success", time:now.toLocaleString(), date:now.toLocaleDateString(), device, browser });
+    localStorage.setItem("loginLog", JSON.stringify(log));
+    sessionStorage.setItem("loggedIn","true");
+    document.getElementById("loginErr").style.display="none";
+    showAdmin();
+  } else {
+    log.push({ user:user||"(blank)", status:"Failed", time:now.toLocaleString(), date:now.toLocaleDateString(), device, browser });
+    localStorage.setItem("loginLog", JSON.stringify(log));
+    const err = document.getElementById("loginErr");
+    err.style.display="block";
+    setTimeout(()=>err.style.display="none", 3000);
+  }
+}
+
+function logout(){
+  sessionStorage.removeItem("loggedIn");
+  location.reload();
+}
+
+function showAdmin(){
+  document.getElementById("loginPage").style.display="none";
+  document.getElementById("adminPanel").style.display="flex";
+  loadAll();
+}
+
+if(sessionStorage.getItem("loggedIn")==="true") showAdmin();
+
+/* ===== NAVIGATION ===== */
+const sections=["dashboard","staff","attendance","salary","reports"];
+
+function showSection(id){
+  sections.forEach(s=>{
+    document.getElementById(s).classList.add("hidden");
+    document.getElementById("btn-"+s).classList.remove("active");
+  });
+  document.getElementById(id).classList.remove("hidden");
+  document.getElementById("btn-"+id).classList.add("active");
+  if(id==="dashboard") updateDashboard();
+  if(id==="reports")   loadReports();
+}
+
+/* ===== STAFF ===== */
+function generateStaffID(){ return "IBG"+Math.floor(1000+Math.random()*9000); }
+
+function addStaff(){
+  const name=document.getElementById("name").value.trim();
+  const dept=document.getElementById("dept").value.trim();
+  const photoFile=document.getElementById("photo").files[0];
+  if(!name||!dept||!photoFile){ alert("Please fill all fields"); return; }
+  const reader=new FileReader();
+  reader.onload=function(){
+    const staff=JSON.parse(localStorage.getItem("staff"))||[];
+    staff.push({id:generateStaffID(),name,dept,photo:reader.result});
+    localStorage.setItem("staff",JSON.stringify(staff));
+    loadAll();
+    document.getElementById("name").value="";
+    document.getElementById("dept").value="";
+  };
+  reader.readAsDataURL(photoFile);
+}
+
+function deleteStaff(index){
+  if(!confirm("Delete this staff member?")) return;
+  const staff=JSON.parse(localStorage.getItem("staff"));
+  staff.splice(index,1);
+  localStorage.setItem("staff",JSON.stringify(staff));
+  loadAll();
+}
+
+function loadAll(){
+  const staff=JSON.parse(localStorage.getItem("staff"))||[];
+  document.getElementById("staffList").innerHTML=staff.map((s,i)=>`
+    <div class="staff-item">
+      <img src="${s.photo}" alt="${s.name}">
+      <p><b>${s.name}</b></p><p>${s.id}</p><p>${s.dept}</p>
+      <button class="delete" onclick="deleteStaff(${i})">🗑 Remove</button>
+    </div>`).join("")||"<p style='color:#94a3b8;font-size:13px;padding:10px'>No staff added yet.</p>";
+
+  const opts=staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
+  document.getElementById("attStaff").innerHTML=opts||"<option value=''>No staff</option>";
+  document.getElementById("salaryStaff").innerHTML=opts||"<option value=''>No staff</option>";
+
+  loadAttendance(); loadSalary(); updateDashboard();
+}
+
+/* ===== ATTENDANCE ===== */
+function markAttendance(){
+  const id=document.getElementById("attStaff").value;
+  const status=document.getElementById("attStatus").value;
+  if(!id){ alert("No staff to mark"); return; }
+  const records=JSON.parse(localStorage.getItem("attendance"))||[];
+  records.push({id,status,date:new Date().toLocaleDateString()});
+  localStorage.setItem("attendance",JSON.stringify(records));
+  loadAttendance(); updateDashboard();
+}
+
+function deleteAttendance(index){
+  if(!confirm("Delete this record?")) return;
+  const records=JSON.parse(localStorage.getItem("attendance"))||[];
+  records.splice(records.length-1-index,1);
+  localStorage.setItem("attendance",JSON.stringify(records));
+  loadAttendance(); updateDashboard();
+}
+
+function loadAttendance(){
+  const records=JSON.parse(localStorage.getItem("attendance"))||[];
+  const staff=JSON.parse(localStorage.getItem("staff"))||[];
+  const getName=id=>(staff.find(s=>s.id===id)||{}).name||id;
+  document.getElementById("attendanceList").innerHTML=records.length
+    ?[...records].reverse().map((r,i)=>`
+      <div class="record-row">
+        <span>${r.date}</span>
+        <span>${getName(r.id)} (${r.id})</span>
+        <span class="badge ${r.status.toLowerCase()}">${r.status}</span>
+        <button class="delete" onclick="deleteAttendance(${i})">🗑 Delete</button>
+      </div>`).join("")
+    :"<p style='color:#94a3b8;font-size:13px'>No records yet.</p>";
+}
+
+/* ===== SALARY ===== */
+function addSalary(){
+  const id=document.getElementById("salaryStaff").value;
+  const amount=document.getElementById("salaryAmount").value;
+  if(!amount){ alert("Enter salary amount"); return; }
+  const records=JSON.parse(localStorage.getItem("salary"))||[];
+  records.push({id,amount:parseFloat(amount),date:new Date().toLocaleDateString()});
+  localStorage.setItem("salary",JSON.stringify(records));
+  document.getElementById("salaryAmount").value="";
+  loadSalary(); updateDashboard();
+}
+
+function deleteSalary(index){
+  if(!confirm("Delete this record?")) return;
+  const records=JSON.parse(localStorage.getItem("salary"))||[];
+  records.splice(records.length-1-index,1);
+  localStorage.setItem("salary",JSON.stringify(records));
+  loadSalary(); updateDashboard();
+}
+
+function loadSalary(){
+  const records=JSON.parse(localStorage.getItem("salary"))||[];
+  const staff=JSON.parse(localStorage.getItem("staff"))||[];
+  const getName=id=>(staff.find(s=>s.id===id)||{}).name||id;
+  document.getElementById("salaryList").innerHTML=records.length
+    ?[...records].reverse().map((r,i)=>`
+      <div class="record-row">
+        <span>${r.date}</span>
+        <span>${getName(r.id)} (${r.id})</span>
+        <span style="font-weight:700;color:#16a34a">₹${Number(r.amount).toLocaleString()}</span>
+        <button class="delete" onclick="deleteSalary(${i})">🗑 Delete</button>
+      </div>`).join("")
+    :"<p style='color:#94a3b8;font-size:13px'>No salary records yet.</p>";
+}
+
+/* ===== DASHBOARD ===== */
+function updateDashboard(){
+  const staff=JSON.parse(localStorage.getItem("staff"))||[];
+  const attendance=JSON.parse(localStorage.getItem("attendance"))||[];
+  const salary=JSON.parse(localStorage.getItem("salary"))||[];
+  const loginLog=JSON.parse(localStorage.getItem("loginLog"))||[];
+  const today=new Date().toLocaleDateString();
+  const todayAtt=attendance.filter(r=>r.date===today);
+  const totalSal=salary.reduce((s,r)=>s+Number(r.amount),0);
+
+  document.getElementById("totalStaff").textContent=staff.length;
+  document.getElementById("totalPresent").textContent=todayAtt.filter(r=>r.status==="Present").length;
+  document.getElementById("totalAbsent").textContent=todayAtt.filter(r=>r.status==="Absent").length;
+  document.getElementById("totalAtt").textContent=attendance.length;
+  document.getElementById("totalSalaryPaid").textContent="₹"+totalSal.toLocaleString();
+  document.getElementById("totalSalaryRecords").textContent=salary.length;
+  document.getElementById("totalLogins").textContent=loginLog.length;
+  document.getElementById("successLogins").textContent=loginLog.filter(l=>l.status==="Success").length;
+  document.getElementById("failedLogins").textContent=loginLog.filter(l=>l.status==="Failed").length;
+}
+
+/* ===== REPORTS ===== */
+function loadReports(){
+  const staff=JSON.parse(localStorage.getItem("staff"))||[];
+  const attendance=JSON.parse(localStorage.getItem("attendance"))||[];
+  const salary=JSON.parse(localStorage.getItem("salary"))||[];
+  const loginLog=JSON.parse(localStorage.getItem("loginLog"))||[];
+  const totalSal=salary.reduce((s,r)=>s+Number(r.amount),0);
+
+  document.getElementById("r-staff").textContent=staff.length;
+  document.getElementById("r-present").textContent=attendance.filter(r=>r.status==="Present").length;
+  document.getElementById("r-absent").textContent=attendance.filter(r=>r.status==="Absent").length;
+  document.getElementById("r-salary").textContent="₹"+totalSal.toLocaleString();
+  document.getElementById("r-logins").textContent=loginLog.length;
+  document.getElementById("r-failed").textContent=loginLog.filter(l=>l.status==="Failed").length;
+
+  const rStaff=document.getElementById("rStaff");
+  rStaff.innerHTML='<option value="all">All Staff</option>'+
+    staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
+
+  renderReport();
+}
+
+function inRange(dateStr,from,to){
+  const d=new Date(dateStr);
+  if(from && d<new Date(from)) return false;
+  if(to   && d>new Date(to+"T23:59:59")) return false;
+  return true;
+}
+
+function renderReport(){
+  const type=document.getElementById("rType").value;
+  const staffId=document.getElementById("rStaff").value;
+  const from=document.getElementById("rFrom").value;
+  const to=document.getElementById("rTo").value;
+
+  const staff=JSON.parse(localStorage.getItem("staff"))||[];
+  const attendance=JSON.parse(localStorage.getItem("attendance"))||[];
+  const salary=JSON.parse(localStorage.getItem("salary"))||[];
+  const loginLog=JSON.parse(localStorage.getItem("loginLog"))||[];
+  const getName=id=>(staff.find(s=>s.id===id)||{}).name||id;
+
+  // Toggle visibility of staff filter and clear log button
+  const isLogin=(type==="login"||type==="staff");
+  document.getElementById("staffFilterWrap").style.display=isLogin?"none":"block";
+  document.getElementById("clearLoginWrap").style.display=type==="login"?"block":"none";
+
+  let html="";
+
+  if(type==="login"){
+    document.getElementById("reportTitle").textContent="🔐 Login Activity Report";
+    let rows=[...loginLog].reverse().filter(r=>inRange(r.date,from,to));
+    if(!rows.length){ html=`<p class="no-data">No login records found. Login activity is recorded automatically on each login attempt.</p>`; }
+    else {
+      html=`<table class="report-table">
+        <thead><tr><th>#</th><th>Date & Time</th><th>Username Entered</th><th>Status</th><th>Device</th><th>Browser</th></tr></thead>
+        <tbody>${rows.map((r,i)=>`
+          <tr>
+            <td>${i+1}</td>
+            <td>${r.time}</td>
+            <td><b>${r.user}</b></td>
+            <td><span class="badge ${r.status==="Success"?"success":"failed"}">${r.status==="Success"?"✅ Success":"❌ Failed"}</span></td>
+            <td><span class="device-tag">${r.device||"🖥️ Desktop"}</span></td>
+            <td>${r.browser||"Unknown"}</td>
+          </tr>`).join("")}
+        </tbody>
+        <tfoot><tr>
+          <td colspan="3" style="font-weight:700;color:#1e293b;">Summary</td>
+          <td>${rows.filter(r=>r.status==="Success").length} ✅ / ${rows.filter(r=>r.status==="Failed").length} ❌</td>
+          <td colspan="2"></td>
+        </tr></tfoot>
+      </table>`;
+    }
+  }
+
+  else if(type==="attendance"){
+    document.getElementById("reportTitle").textContent="📋 Attendance Report";
+    let rows=[...attendance].reverse().filter(r=>{
+      if(staffId!=="all"&&r.id!==staffId) return false;
+      return inRange(r.date,from,to);
+    });
+    if(!rows.length){ html=`<p class="no-data">No attendance records match your filters.</p>`; }
+    else {
+      html=`<table class="report-table">
+        <thead><tr><th>#</th><th>Date</th><th>Staff ID</th><th>Name</th><th>Status</th></tr></thead>
+        <tbody>${rows.map((r,i)=>`
+          <tr><td>${i+1}</td><td>${r.date}</td><td>${r.id}</td><td>${getName(r.id)}</td>
+          <td><span class="badge ${r.status.toLowerCase()}">${r.status}</span></td></tr>`).join("")}
+        </tbody>
+        <tfoot><tr><td colspan="4" style="font-weight:700">Total: ${rows.length} records</td>
+        <td>${rows.filter(r=>r.status==="Present").length}P / ${rows.filter(r=>r.status==="Absent").length}A</td></tr></tfoot>
+      </table>`;
+    }
+  }
+
+  else if(type==="salary"){
+    document.getElementById("reportTitle").textContent="💰 Salary Report";
+    let rows=[...salary].reverse().filter(r=>{
+      if(staffId!=="all"&&r.id!==staffId) return false;
+      return inRange(r.date,from,to);
+    });
+    const total=rows.reduce((s,r)=>s+Number(r.amount),0);
+    if(!rows.length){ html=`<p class="no-data">No salary records match your filters.</p>`; }
+    else {
+      html=`<table class="report-table">
+        <thead><tr><th>#</th><th>Date</th><th>Staff ID</th><th>Name</th><th>Amount</th></tr></thead>
+        <tbody>${rows.map((r,i)=>`
+          <tr><td>${i+1}</td><td>${r.date}</td><td>${r.id}</td><td>${getName(r.id)}</td>
+          <td style="color:#16a34a;font-weight:700">₹${Number(r.amount).toLocaleString()}</td></tr>`).join("")}
+        </tbody>
+        <tfoot><tr><td colspan="4" style="font-weight:700">Total Disbursed</td>
+        <td style="color:#16a34a;font-weight:700">₹${total.toLocaleString()}</td></tr></tfoot>
+      </table>`;
+    }
+  }
+
+  else if(type==="staff"){
+    document.getElementById("reportTitle").textContent="👥 Staff Summary Report";
+    if(!staff.length){ html=`<p class="no-data">No staff added yet.</p>`; }
+    else {
+      html=`<table class="report-table">
+        <thead><tr><th>#</th><th>Staff ID</th><th>Name</th><th>Department</th><th>Present</th><th>Absent</th><th>Total Salary</th></tr></thead>
+        <tbody>${staff.map((s,i)=>{
+          const att=attendance.filter(r=>r.id===s.id);
+          const sal=salary.filter(r=>r.id===s.id).reduce((sum,r)=>sum+Number(r.amount),0);
+          return`<tr><td>${i+1}</td><td>${s.id}</td><td><b>${s.name}</b></td><td>${s.dept}</td>
+            <td style="color:#16a34a;font-weight:700">${att.filter(r=>r.status==="Present").length}</td>
+            <td style="color:#dc2626;font-weight:700">${att.filter(r=>r.status==="Absent").length}</td>
+            <td style="color:#7c3aed;font-weight:700">₹${sal.toLocaleString()}</td></tr>`;
+        }).join("")}
+        </tbody>
+      </table>`;
+    }
+  }
+
+  document.getElementById("reportTableWrap").innerHTML=html;
+}
+
+function clearFilters(){
+  document.getElementById("rStaff").value="all";
+  document.getElementById("rFrom").value="";
+  document.getElementById("rTo").value="";
+  renderReport();
+}
+
+function clearLoginLog(){
+  if(!confirm("Clear all login history? This cannot be undone.")) return;
+  localStorage.removeItem("loginLog");
+  loadReports(); updateDashboard();
+}
+</script>
+</body>
+</html>
